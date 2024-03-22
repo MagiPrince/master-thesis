@@ -1,0 +1,56 @@
+% Conclusion
+
+\chapter{Conclusion} % Main chapter title
+
+\label{Conclusion} % For referencing the chapter elsewhere, use \ref{Conclusion} 
+
+%----------------------------------------------------------------------------------------
+
+\section{Conclusion sur le travail}
+
+À la fin de ce travail, nous proposons un algorithme d'apprentissage automatique quantifié avec QKeras et synthétisé à l'aide de \acrshort{hls4ml} pour la détection de jets sur le \acrshort{fpga} Alveo U250. Le modèle en question est une version de ResNet18 modifiée pour réaliser de la détection d'objet à l'aide d'une tête dédiée. Celui-ci a subi une réduction du nombre de filtres de convolutions d'un facteur $16$ afin de diminuer le nombre de paramètres du modèle et de permettre une parallélisation maximum des opérations sur \acrshort{fpga} en vue d'obtenir la plus faible latence possible. Cette dernière est mesurée à $0.167 ms$ pour la version dont les ressources sont suffisantes sur le \acrshort{fpga} visé, l'Alveo U250. Malheureusement, cette latence est beaucoup trop élevée pour réaliser la détection de jets en temps réel. Cependant, en parallélisant un maximum, malgré un débordement des ressources, nous atteignons une latence de moins de $\mu s$, qui pourrait entrer au moins dans les contraintes de temps du second niveau de déclenchement. De plus, toutes les couches synthétisées n'ont pas pu bénéficier de la stratégie "Latency". Réussir à utiliser la stratégie en question sur toutes les couches, notamment à l'aide d'autres méthodes de compression, pourrait permettre d'obtenir une plus faible latence.
+Il faut également garder en tête que suite aux contraintes imposées par \acrshort{hls4ml}, la version synthétisée ne possède qu'un bloc de détection, et par conséquent les résultats obtenus ne reflètent pas celle d'une implémentation avec au minimum $16$ blocs de détection.
+
+Concernant les performances atteintes par le modèle synthétisé, avec des scores maximums de $0.54$ pour la précision, $0.35$ pour le rappel, $0.42$ pour le score F1, $0.28$ pour l'AP[.5], et $0.07$ pour l'AP[.5,.05,.95] nous voyons que les résultats sont capables d'effectuer des prédictions correctes, mais surtout qu'il a de grosses difficultés à les réaliser. Pourtant le modèle de base testé obtenait les résultats maximums suivants : $0.87$ pour la précision, $0.82$ pour le rappel, $0.83$ pour le score F1, $0.77$ pour l'AP[.5], et $0.40$ pour l'AP[.5,.05,.95] démontrant qu'il est capable de réaliser de bonnes prédictions pour la détection de jets. La quantification ne diminue pas significativement les résultats, contrairement à la réduction des filtres de convolution qui a un gros impact sur ces derniers. Il serait donc intéressant d'explorer d'autres pistes de compression. 
+
+Lors de la réalisation de ce projet, nous avons établi un état de l'art varié relevant les enjeux liés à la détection de jets en temps réel, les méthodes utilisées et explorées pour cette tâche, mais aussi l'utilisation de modèles d'apprentissage automatique sur \acrshort{fpga} et leurs défis.
+
+Nous avons également pris en main les données fournies, et développé un script nous permettant de représenter ces dernières sous forme d'image dans le but de les traiter avec les méthodes de la vision par ordinateur, et de faciliter l'utilisation de ces données pour de futurs travaux. Suite au prétraitement de ces dernières, nous avons pu les utiliser pour entraîner et évaluer deux modèles. Aux côtés de notre version de (Q)ResNet18+Tête, nous avons également testé YOLOv8 étant l'algorithme d'apprentissage automatique à la pointe. Les résultats maximums obtenus avec celui-ci pour sa version xs sont : $0.94$ pour la précision, $0.81$ pour le rappel, $0.84$ pour le score F1, $0.83$ pour l'AP[.5], et $0.51$ pour l'AP[.5,.05,.95]. Avec de très bons résultats, YOLOv8 démontre qu'il est capable de réaliser de la détection de jets.
+
+Finalement, nous avons réalisé la synthèse de notre modèle ResNet18+Tête avec \acrshort{hls4ml}. Cette étape ayant été itérative, nous en avons tiré un logigramme afin de détailler les étapes du développement d'un modèle et de sa synthèse pour travailler efficacement avec l'outil.\\
+
+Les principaux apports de ce travail de master sont ; une représentation des données issues du calorimètre sous forme d'image. L'évaluation de deux modèles très différents, YOLOv8 et ResNet18+Tête, sur la tâche de la détection de jet à l'aide de plusieurs métriques comme la précision, le rappel, le score F1, l'AP[.5], et l'AP[.5,.05,.95]. Le détail du processus de développement du modèle ResNet18+Tête jusqu'à sa synthèse. Et la proposition d'une procédure pour réaliser le développement et la synthèse d'un modèle avec \acrshort{hls4ml}.
+
+Ceux-ci ont pour but d'étudier des pistes pour la détection de jets basée sur l'apprentissage automatique, mais également d'en proposer des nouvelles. De permettre la prise en main rapide et facilitée des données issues du calorimètre à l'aide d'une représentation sous forme d'image, très précieuse pour l'application de méthodes de vision par ordinateur, et l'évaluation d'autres réseaux neuronaux convolutifs. Ainsi que de faciliter la synthèse d'un modèle avec \acrshort{hls4ml} grâce à une procédure.\\
+
+\section{Pistes à explorer}
+
+Suite à tout le travail que nous avons réalisé, le problème traité étant très large, il en ressort une multitude de pistes à explorer.\\
+
+Pour débuter, la création d'images à partir des données s'effectue en additionnant la valeur d'une cellule du calorimètre à l'indice correspondant. Un complément à cette méthode pourrait être de répartir l'énergie d'une cellule proportionnellement à sa distance aux indices l'entourant.
+
+Les données représentées sous forme d'images n'utilisent que deux canaux sur les trois disponibles. Deux pistes sont à envisager. La première, retirer le canal inutile et modifier les modèles en conséquence. La seconde, ajouter des données sur ce canal vide pour permettre au modèle de mieux capturer les caractéristiques des jets.
+
+Par ailleurs, une grande partie du calorimètre est traité sur chaque image. Une méthode simple pour diminuer le nombre de paramètres sans réduire le nombre de filtres de convolution pourrait être en divisant chaque image pour être traitée par plusieurs \acrshort{fpga} simultanément à l'instar de \acrshort{jfex} qui répartit ses calculs.
+
+Toujours dans le registre de compression de modèle, nous avons pu voir grâce à notre état de l'art qu'il existe une multitude de méthodes. La première d'entre elles à appliquer serait le prunning qui diminuerait le nombre de paramètres sans impacter les performances. De plus, nous avons relevé un article sur la représentation binaire ou ternaire avec \acrshort{hls4ml} qui est aussi intéressante à explorer. Cela permettrait non seulement de diminuer le nombre de paramètres, mais également de potentiellement paralléliser encore plus le modèle, et par conséquent d'obtenir latence plus adaptée.
+
+Bien que ResNet18+Tête soit derrière YOLOv8 en termes de performances, il démontre qu'un modèle qui était initialement conçu pour réaliser de la classification fonctionne bien sur cette tâche. Ainsi, la détection de jets pourrait bénéficier du développement d'un modèle dédié dont l'essence même se concentre sur sa simplicité et sa petite taille.
+
+Concernant l'évaluation des modèles, celle-ci est réalisée sur des données simulées ne contenant pas de "PileUp". Un premier pas serait de tester les performances sur des données avec "PileUp", puis avec des données réelles. Cela permettrait d'observer et d'analyser le comportement des modèles dans des conditions moins favorables.
+
+Dans la même optique, il serait intéressant d'effectuer l'implémentation du modèle synthétiser sur l'Alveo U250, afin d'obtenir d'autres métriques comme la consommation, et de tester le modèle en conditions réelles.
+
+Finalement, lors de la réalisation de notre travail, nous nous sommes heurtés à plusieurs limitations notamment liées à \acrshort{hls4ml} comme décries dans la section dédiée (\ref{sec:hls4ml_limitations}). Cette librairie étant toujours en développement, il est sûr qu'à terme, certaines des limitations rencontrées lors de notre projet seront réglées et ouvriront la voie à un développement encore plus simplifié.
+
+\section{Bilan}
+
+Ce travail de master nous a permis d'explorer différents domaines allant de la physique des particules, à l'intelligence artificielle, en passant par le monde matériel notamment des \acrshort{fpga}. De par la complexité de chaque sujet, et les compétences nécessaires pour réaliser ce projet, nous avons du prendre en main : des données complexes, deux réseaux neuronaux convolutifs tout en apportant une modification de l'implémentation pour l'un d'entre eux, ainsi que les librairies QKeras et \acrshort{hls4ml}.
+Nous avons beaucoup appris tout du long et nous rendons compte de l'ampleur du travail abattu.
+
+La détection de jets étant un problème aussi vaste que complexe, nous réalisons qu'il est nécessaire de faciliter l'accès à différents domaines de recherche. C'est dans cette optique que nous avons mis l'accent sur la représentation des données sous forme d'images, ou que nous proposons une procédure pour simplifier les étapes menant à la synthèse de modèles avec \acrshort{hls4ml}.
+
+De plus, bien que plusieurs articles aient commencé à explorer le sujet, celui-ci est immense et ne propose pas de réponse unique. Permettre à l'ensemble de différentes communautés scientifiques de travailler ensemble pour répondre aux enjeux d'un tel problème est donc un objectif clef.
+
+Nous espérons à travers ce travail apporter des réponses sur les méthodes utilisées et les modèles évalués, mais surtout des pistes d'exploration pour de futurs projets.
+%----------------------------------------------------------------------------------------

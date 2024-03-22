@@ -1,0 +1,41 @@
+% Introduction
+\chapter{Introduction} % Main chapter title
+
+\label{Introduction} % For referencing the chapter elsewhere, use \ref{Introduction} 
+
+%----------------------------------------------------------------------------------------
+\section{Contexte}
+
+Dans le cadre de l'expérience \acrfull{atlas}, au sein du collisionneur \acrfull{lhc} au \acrfull{cern}, deux faisceaux de particules à haute énergie entrent en collision au centre du détecteur. Lors d'une collision entre protons, le résultat le plus commun est la production de quarks et de gluons. De par des processus complexes décrits par la chromodynamique quantique, ces derniers vont s'assembler en hadrons par un phénomène appelé hadronisation. Celui-ci génère un cône de particules nommé jet \cite{noauthor_jets_nodate}. Ce sont ces derniers que les physiciens souhaitent observer pendant une expérience. En effet, en les étudiant, il est possible d'en apprendre plus sur le type de particule qui l'a créé, et de, par exemple, en découvrir de nouvelles \cite{atlas_machine_2023}.
+
+Lorsqu'une expérience est réalisée, celle-ci comporte un nombre d'événements défini par la fréquence des collisions qui est actuellement de 40 MHz \cite{noauthor_introduction_nodate}. Chacun d'entre eux génère environ 25 MB de données \cite{noauthor_trigger_nodate}, ce qui, de par la fréquence de chaque événement, produit une quantité de données faramineuse chaque seconde. Afin de réduire la masse d'informations à enregistrer, à traiter, mais également les coûts liés : comme la consommation en électricité, ou l'infrastructure nécessaire pour stocker les données (bande passante, locaux pour les systèmes de stockages de données, etc.), il est important de conserver uniquement les événements "intéressants". Ceux-ci sont définis comme tels s'ils contiennent un grand nombre de jets, ou des jets très énergétiques. Pour ce faire, un système de déclenchement à deux niveaux a été mis en place \cite{noauthor_trigger_nodate}.
+
+Le premier niveau, composés de \acrfull{fpga} et d'électronique dédiée, est caractérisé par une très faible latence (moins de 2.5 microsecondes). Il traite chaque événement, et réduit la fréquence d'un facteur 400 afin d'accepter au maximum 100'000 événements par seconde.
+
+Le deuxième niveau opère quant à lui dans une large ferme de processeur (environ 40'000). Il examine à son tour les données transmises, et diminue la fréquence d'un facteur 100 pour sélectionner 1000 événements par seconde qui seront par la suite analysés hors-ligne.
+
+%----------------------------------------------------------------------------------------
+
+\section{Motivation}
+
+Comme nous avons pu le voir précédemment, les systèmes de déclenchements sont cruciaux afin de diminuer la quantité de données à traiter / enregistrer. De plus, dû à la fréquence élevée des événements, il est vital que les algorithmes utilisés par ces derniers soient fiables, et opèrent dans les contraintes de temps imposées. À cela s'ajoute l'ambition du \acrshort{cern} d'augmenter la "luminosité" du détecteur, c'est-à-dire le nombre d'événements détectés dans un laps de temps déterminé, qui génèrent d'autant plus de données. Il est donc primordial de s'assurer que les systèmes de déclenchements sont capables de gérer un tel flux.
+
+En parallèle, ces dernières années ont vu de nombreuses avancées dans le domaine de l'apprentissage automatique, notamment les \acrfull{cnn}. Mais aussi l'émergence de nouvelles technologies, comme la librairie \acrfull{hls4ml} permettant la synthèse de réseaux de neurones développés en python sur \acrshort{fpga}. Grâce à celles-ci, des travaux utilisant des algorithmes de machine learning sont menés afin de potentiellement proposer des alternatives aux méthodes utilisées au sein de ces niveaux de déclenchement.
+
+C'est dans ce cadre que ce travail a vu le jour. Il a pour but de mettre en place et d'évaluer deux réseaux neuronaux convolutifs pour la détection de jets en temps réel, et d'implémenter l'un d'entre eux sur \acrshort{fpga} à l'aide de \acrshort{hls4ml}. De plus, il propose une méthode pour représenter les données issues du calorimètre sous forme d'image, et un logigramme pour utiliser efficacement l'outil \acrshort{hls4ml}, afin de rendre le développement de solutions similaires plus facilement accessibles.
+
+%----------------------------------------------------------------------------------------
+
+\section{Méthodologie}
+
+Lors de la réalisation de ce travail, nous avons débuté par la compréhension de l'objectif et des contraintes auxquelles nous faisons face. En parallèle de cette étape, nous avons pris en main les différentes données fournies issues du calorimètre, nous avons appréhendé leur provenance, comment celles-ci sont stockées dans les fichiers, et leurs significations.
+
+Lors de notre travail sur ces dernières, nous avons développé des scripts dédiés afin de les visualiser. Cela nous a permis de les rendre plus lisibles à l'aide de méthodes de normalisation, et d'observer les artéfacts visibles dans le but de les réduire. Cette phase nous a conduits à la génération des images que nous utilisons dans nos réseaux neuronaux convolutifs.
+
+À ce stade, nous avons choisi d'appréhender et d'utiliser le modèle YOLOv8 afin de l'entraîner puis de l'évaluer sur la détection de jets. Malheureusement, notre approche ne nous permettant pas de synthétiser ce dernier avec \acrshort{hls4ml}, nous avons décidé de le garder comme référence et de développer un deuxième modèle plus simple. Pour cela, nous avons étudié et utilisé le réseau de neurones ResNet18 que nous avons modifié en lui ajoutant une tête afin de réaliser de la détection d'objets.
+
+Celui-ci a été entraîné et évalué dans sa représentation en virgule flottante, et dans sa représentation à faible précision, avec la librairie QKeras que nous avons découvert et utilisé pour la première fois, afin d'être adaptée pour une implémentation sur \acrshort{fpga}.
+
+Finalement, nous avons pris en main l'outil \acrshort{hls4ml} grâce auquel nous avons synthétisé notre modèle quantifié en modifiant un paramètre pour observer son impact. Forts de cette expérience, nous avons réalisé un logigramme retraçant les étapes par lesquelles nous sommes passés lors de cette phase pour nos deux modèles.
+
+%----------------------------------------------------------------------------------------

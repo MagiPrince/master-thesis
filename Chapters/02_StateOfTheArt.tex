@@ -1,0 +1,159 @@
+% Etat de l'art
+
+\chapter{Etat de l'art} % Main chapter title
+
+\label{StateOfTheArt} % For referencing the chapter elsewhere, use \ref{StateOfTheArt} 
+
+%----------------------------------------------------------------------------------------
+
+Les articles présentés dans ce chapitre ont pour objectif de détailler l'état actuel des recherches dans les différents domaines abordés dans ce travail. En plus de ceux-ci, nous présentons également les réseaux de neurones, les algorithmes de machine learning \acrshort{yolo} et son évolution, Resnet18, ainsi que la bibliothèque \acrshort{hls4ml} respectivement dans leurs sections ou chapitre dédié : \ref{sec:nn}, \ref{sec:yolov8}, \ref{sec:resnet18}, et \ref{HLS4ML}.
+
+\section{The ATLAS jet trigger for Run 3 of the LHC \cite{amerl_atlas_2023}}
+Cet article écrit par Miximilian Amerl au nom de la collaboration \acrshort{atlas} en novembre 2023 aborde le système de déclenchement de jets pour le "Run-3" (la troisième période d'exploitation du \acrshort{lhc}) pour le projet \acrshort{atlas}. Il présente les changements qui ont été réalisés entre le "Run-2" et "Run-3", ainsi que les performances des systèmes de déclenchement de jets mesurés en 2022 et attendus en 2023.\\
+
+Celui-ci met en avant les deux systèmes de déclenchement. Le premier niveau (Level-1) de déclenchement matériel de très basse latence ($2.5\mu s)$, qui reconstruit grossièrement des objets et identifie des régions d'intérêts. Avec cette méthode, celui-ci peut limiter la fréquence de sortie à 100 kHz.
+
+Les régions d'intérêts identifiées sont transmises au \acrfull{hlt} (le deuxième niveau de déclenchement) composé d'une ferme de processeur qui applique des algorithmes similaires à ceux utilisés hors-ligne. Le \acrshort{hlt} détermine quelles données sont sauvegardées et diminue à son tour la fréquence de sortie à 3 kHz.\\
+
+Il y est également mentionné l'utilisation de l'algorithme "$anti-k_t$" pour reconstruire des jets à l'aide d'un rayon de $0.4$ pour le "Run-3", ainsi que la réutilisation des jets construits dans le \acrshort{hlt} directement pour des recherches (au lieu de les reconstruire une deuxième fois hors-ligne).\\
+
+Par ailleurs, l'article discute aussi des performances du système de déclenchement de jets comparé aux résultats obtenus hors-ligne, et de l'importance de la calibration des jets pour les comparer avec ce qui a été amélioré pour le "Run-3".\\
+
+Nous constatons à travers cet article le rôle crucial que joue le système de déclenchement et les contraintes auxquelles il doit faire face. De plus, il démontre les bonnes performances du système actuel. Proposer des solutions permettant d'améliorer la vitesse de traitement et les performances est donc un enjeu de taille.
+
+\section{Jet Reconstruction in the ATLAS Level-1 Calorimeter Trigger with Deep Artificial Neural Networks \cite{schlag_jet_2018}}
+
+Cette thèse de master rédigé par Bastian Schlag en 2018 aborde la reconstruction de jets pour le premier niveau de système de déclenchement ("Level-1") dans le cadre du projet \acrshort{atlas} lors du "Run-2" à l'aide de réseaux de neurones. Elle a pour but de développer un réseau de neurones pour la détection de jets avec l'efficacité de l'algorithme $anti-k_t$ tout en étant assez petit pour être implémenté sur le matériel du "Level-1".\\
+
+Ce travail aborde différents aspects tels que la physique des particules, le projet \acrshort{atlas}, le deep learning, et les échantillons issus de simulation de Monte-Carlo, avant d'aborder la reconstruction de jets à l'aide de modèles de deep learning et une adaptation de ceux-ci sur FPGA.\\
+
+Celui-ci utilise les données issues du calorimètre décomposées en sous-régions d'une taille de $24 \times 32$ au sein desquelles seul le centre sera traité pour la détection de jets.
+
+Pour ce faire, deux réseaux neuronaux convolutifs ont été développés. Le premier est très simple, il prend une entrée à laquelle il applique deux convolutions suivies par deux couches de neurones entièrement connectés avant d'obtenir la sortie. Celle-ci est d'une taille fixe définie à 10 pour détecter des jets, et retourne pour chacun d'eux ses coordonnées $\eta \times \phi$ ainsi que son énergie transverse.
+
+Le second est semblable à un réseau "U-Net", et retourne en sortie une image de même taille avec uniquement l'énergie transverse totale de chaque jet aux indices auxquels le modèle estime qu'il est présent.
+
+Il s'agit là de deux approches complémentaires, le premier est limité pour la détection de jets par la taille de sortie retournant directement les informations de ceux-ci, à l'inverse du second qui peut en détecter une multitude mais dont les informations sont directement sur la matrice.\\
+
+Ceux-ci ont été entraînés sur des données simulées sans "Pile-up", et comparés à l'algorithme $anti-k_t$. Le premier modèle est capable de détecter des jets, mais lorsque ceux-ci sont proches entre eux ou des bords, le réseau de neurones montre ses limites. Il performe relativement bien, même s'il est moins bon que l'algorithme $anti-k_t$.
+
+Le second modèle performe vraiment bien, car il est capable de rivaliser et de dépasser l'algorithme $anti-k_t$.
+
+Concernant l'adaptation des réseaux neuronaux convolutifs sur \acrshort{fpga}, le travail n'effectue pas d'implémentation directe, mais compare le nombre de multiplications que deux types de \acrshort{fpga} peuvent effectuer au nombre réalisé pour le second modèle. Il met alors en avant qu'il est nécessaire de réduire la taille du réseau de neurones afin de permettre cette adaptation. Des nouveaux résultats sont alors présentés avec le réseau réduit, où sans surprise ce dernier performe moins bien mais pour lesquels ils restent comparables ou légèrement en dessous de ceux de l'algorithme $anti-k_t$.
+
+Cette thèse démontre qu'il est possible de développer un réseau de neurones capable d'obtenir des performances équivalentes voire de dépasser l'algorithme $anti-k_t$ dans certaines conditions. Et qu'une version réduite pourrait être implémentée sur \acrshort{fpga}. Cependant, aucune indication de la latence ou même d'implémentation n'est présentée.
+
+\section{Jet-images: computer vision inspired techniques for jet tagging \cite{cogan_jet-images_2015}} 
+
+Cet article écrit par Josh Cogan, Michael Kagan, Emanuel Strauss, et Ariel Schwarztman publié en 2015 présente une nouvelle méthode pour l'étiquetage et la classification de jets.
+
+L'étude approxime le calorimètre comme une seule grille d'un intervalle $\delta\eta \times \delta\phi = 0.1 \times 0.1$ couvrant les coordonnées $[-2.5, 2.5]$ pour $\eta$ et $[0, 2\pi]$ pour $\phi$. Suite à une étape de détection des jets, la zone autour de ces derniers est sauvegardée pour être traitée comme une image par des méthodes issues de la vision par ordinateur.
+
+Les étapes suivantes décrivent le traitement des images dans leur contexte, et exposent une étude de cas. Même si l'article n'aborde pas directement de la détection de jets et que le traitement des images est effectué différemment que dans notre travail, l'article effectue une représentation des données issues du calorimètre sous forme d'image. Cette approche nous permet de confirmer notre choix pour l'utilisation d'images et d'adapter celles-ci à notre travail pour les définir comme entrée pour nos modèles de machine learning.
+
+\section{A Survey of Quantization Methods for Efficient Neural Network Inference \cite{gholami_survey_2021}}
+
+Cette étude réalisée en juin 2021 présente l'état des recherches dans le domaine de la quantification pour les réseaux de neurones. De par l'amélioration significative des performances des modèles d'apprentissage automatique au cours de ces dix dernières années, ces derniers sont devenus conséquents les rendant impossibles à déployer pour des applications à ressources limitées. Afin de palier à ce problème, plusieurs pistes ont été explorées notamment la quantification. Cette approche qui a démontré de bons et consistants résultats consiste à modifier la représentation des nombres en virgule flottante, en une représentation à faible précision en virgule fixe. Il est également mis en avant que les réseaux de neurones sont très résistants à des approches de quantification agressives.\\
+
+Le document détaille les concepts basiques de la quantification tels que la quantification uniforme qui espace uniformément les valeurs quantifiées, par opposition à la quantification non uniforme dont les valeurs résultantes ne sont pas uniformément espacées. Bien que cette dernière méthode permette de mieux capturer le signal, elle est complexe à déployer efficacement faisant de la quantification uniforme la méthode utilisée par défaut.
+
+D'autres aspects tels que la quantification symétrique ou asymétrique pour la quantification uniforme, la quantification statique ou dynamique, ainsi que la granularité de la quantification sont exposés.
+
+Ces points possèdent des noms assez parlant, les premiers également mentionnés comme calibration correspond à la plage de valeurs dans laquelle une valeur quantifiée sera attribuée. Pour la définir comme symétrique, l'intervalle doit satisfaire l'équation suivante : $-\alpha=\beta$ où $\alpha$ correspond à la valeur minimum et $\beta$ à la valeur maximum de l'ensemble. La quantification asymétrique choisit généralement une plage de valeurs plus restreinte et fonctionne très bien dans des cas comme avec la fonction d'activation \acrshort{relu} où il n'y a pas de valeur négative.
+
+Les deuxièmes définissent les valeurs de la plage vue précédemment. Celle-ci peut être calculée dynamiquement pour chaque carte d'activation durant l'exécution et retourne de meilleures performances, mais demande de réaliser des calculs en temps réels. Par opposition, l'algorithme de calibration de la plage de façon statique précalcule les valeurs qui restent statiques lors de l'inférence. Bien que moins performante, l'utilisation de la méthode statique ne nécessite aucun calcul en temps réel.
+
+Le troisième aspect sur la granularité de la quantification consiste à définir à quel niveau du réseau de neurones la quantification sera appliquée. Pour chaque couche, en groupant différents canaux au sein d'une couche, pour chaque canal (méthode standard).\\
+
+Un autre élément discuté dans cet article est l'ajustage des paramètres du réseau de neurones quantifié. En effet, la perte de précision engendrée par la quantification introduit une perturbation dans les poids faisant baisser les performances du réseau. Pour pallier à ce problème, deux approches sont discutées. La première, "Quantization-Aware Training" consiste à réentrainer le modèle afin de faire converger les paramètres du modèle vers le point atteint avant la quantification.
+
+Le second, "Post-Training Quantization" ajuste tout simplement les poids sans aucun affinage de ceux-ci.\\
+
+Le document détaille également des notions plus complexes notamment la quantification simulée ("Simulated Quantization"), où les paramètres sont stockés dans une représentation réduite, mais les opérations effectuées en virgule flottante. Cela peut-être pratique dans des conditions de bande passante limitée. Mais aussi la quantification seulement en entiers ("Integer-only Quantization"), pour laquelle les opérations sont effectuées en utilisant une représentation réduite.\\
+
+Un point sur l'utilisation de la quantification pour certains processeurs est également abordé. Celui-ci met en avant que la quantification d'un modèle permet de réduire la taille du modèle, d'être plus rapide, ainsi que de consommer moins.
+
+L'étude dresse un portrait très complet des différentes méthodes de quantification, ainsi que de leurs avantages et inconvénients. De plus, elle met en évidence l'enjeu que représente la quantification de réseaux de neurones et les gains qu'elle apporte pour son utilisation dans des systèmes aux ressources limitées. Son utilisation au sein de notre projet paraît donc indispensable afin d'obtenir un modèle capable de fonctionner efficacement sur \acrshort{fpga}.
+
+\section{Ultra Low-latency, Low-area Inference Accelerators using Heterogeneous Deep Quantization with QKeras and hls4ml \cite{coelho_jr_ultra_2020}}
+
+Cet article daté de juin 2020 présente la librairie QKeras, une extension de la librairie Keras permettant la création de modèles de deep learning quantifiés. Comme nous l'avons vu dans l'article précédent, ce procédé correspond à la réduction de la précision numérique des poids dans un réseau de neurones, optimisant alors ce dernier pour être utilisé sur du matériel dont les ressources sont limitées. Il est donc essentiel pour les applications en temps réel.
+
+L'enjeu souligné par les auteurs est la complexité d'intégrer de grands modèles dans des systèmes embarqués sans pertes de performances. La quantification post-entraînement permet de réduire la taille du modèle, mais elle a pour conséquence de réduire les performances. Une alternative proposée est d'entraîner un modèle en tenant compte des contraintes de quantification (quantization-aware).
+
+L'idée derrière la quantification avec QKeras est qu'il faut indiquer la méthode de quantification pour les entrées, les paramètres, et les sorties des couches manipulant le type des données, mais qu'il n'y a pas besoin de changer les couches de transport de données.
+
+Le document expose les différentes méthodes disponibles pour quantifier un modèle avec QKeras ainsi que leur fonctionnement. Il aborde le problème du décalage de la variance apparaissant lors de l'initialisation des poids dans une couche, si le nombre de bits utilisés pour la représentation est trop petit : inférieur à $1/\sqrt{nb\_neurones\_entrants}$, alors toutes les valeurs en dessous d'un certain seuil seront définies à zéro. La sortie contiendra alors des zéros et par conséquent le modèle ne pourra pas apprendre correctement. Finalement, il décrit le fonctionnement des couches implémentées par QKeras.
+
+L'article démontre que la quantification réalisée à l'aide de QKeras sur le modèle, puis synthétisé avec \acrshort{hls4ml}, diminue significativement l'utilisation des ressources sur \acrshort{fpga} tout en conservant une précision très proche du modèle quantifié post-entraînement utilisé comme référence.
+
+En conclusion, il est mis en avant que l'utilisation conjointe de QKeras et de \acrshort{hls4ml} donne aux utilisateurs la flexibilité de facilement optimiser leurs modèles en termes de latence, ressources, ou précision. Cette librairie contribue à la recherche de l'implémentation de modèles de deep learning sur \acrshort{fpga} pour des applications en temps réel, et ouvre la porte à des non-experts de langages de description matérielle pour prototyper rapidement et simplement des algorithmes.
+
+%----------------------------------------------------------------------------------------
+
+\section{Autres}
+
+Lors de notre recherche d'articles, de documents, et de ressources pour réaliser notre état de l'art, nous avons découvert des publications couvrant certains aspects, ou étant similaire à notre sujet de thèse comme ceux déjà abordés. Cependant, nous avons découvert d'autres travaux dont certaines parties étaient pertinentes dans notre cas, et qui seront abordés dans cette section.\\
+
+L'article "\textbf{The ATLAS Experiment at the CERN Large Hadron Collider: A Description of the Detector Configuration for Run 3}" \cite{aad_atlas_2023} daté de mai 2023 et issu de la collaboration \acrshort{atlas} décrit la configuration de la "Run 3" de leur détecteur. Il dresse notamment un historique de la feuille de route suivie par le détecteur \acrshort{atlas}. Depuis 2009 celui-ci a alterné entre des phases de fonctionnement et de longues périodes d'arrêt. La "Run 3" qui est en cours va continuer jusqu'en 2025 suite à laquelle le collisionneur de particules sera à nouveau arrêté. Il reprendra en 2029 suite à une mise à jour majeure de ses composants, moment auquel il sera attendu d'augmenter la luminosité de ce dernier.
+
+Parmi tous les points abordés, il y est également présenté le \acrfull{jfex}. Il s'agit d'une partie du système de déclenchement du "Level 1", qui s'occupe de la détection de jets. Il y est décrit qu'un total de six modules réalisent la couverture du calorimètre, quatre pour la partie centrale et deux pour les extrémités. Chacun d'entre eux est composé de quatre processeurs \acrshort{fpga} qui couvrent des régions spécifiques. Les données en entrée proviennent des "trigger towers" d'une résolution de $0.1 \times 0.1$ dans la région $|\eta|<2.5$ et varie en fonction des régions. Les algorithmes appliqués sur les données sont également détaillés.
+
+Les informations relevées mettent en avant l'importance d'un système de déclenchement efficace et le besoin d'explorer de nouvelles pistes pour anticiper les évolutions futures. De plus, comprendre le fonctionnement du système actuel, permet de prendre du recul sur l'implémentation que nous souhaitons réaliser.\\
+
+L'article "\textbf{Review of jet reconstruction algorithms}" \cite{atkin_review_2015} rédigé par Ryan Atkin en 2015 passe en revue les différents algorithmes communément utilisés pour la reconstruction de jets et décrit succinctement leurs fonctionnements. Celui-ci met en avant que l'algorithme $anti-k_t$ est le meilleur choix pour la reconstruction de jets. En effet, ce dernier est "infra-red safe" signifiant qu'il est robuste même en la présence de particules à faible impulsion, et il est également "collinear safe" correspondant à la capacité du modèle à gérer les particules colinéaires. De plus, l'équation de l'algorithme $anti-k_t$ montre qu'il est sensible aux particules possédant une impulsion transverse élevée.
+Le document mentionne également plusieurs points à prendre en compte, notamment la taille des jets. Il faut que la taille d'un jet soit suffisamment large pour capturer tous les éléments qui y sont liés, mais sans l'être trop au risque d'inclure des éléments indésirables.
+
+Étant donné que nous souhaitons réaliser un modèle de machine learning capable d'effectuer de la détection de jets comme l'algorithme $anti-k_t$, comprendre les valeurs utilisées par ce dernier est essentiel.\\
+
+L'article "\textbf{The anti-kt jet clustering algorithm}" \cite{cacciari_anti-k_t_2008} écrit en 2008 par Matteo Cacciari, Gavin P. Salam, et Gregory Soyez présente leur nouvel algorithme $anti-k_t$ pour le regroupement de jets. Celui-ci explique qu'il est issu d'une généralisation d'autres algorithmes pour lesquels une variable est modifiée. Il y est ensuite abordé la description de l'algorithme, son fonctionnement, ainsi que ses propriétés notamment le fonctionnement du regroupement des jets pour différents cas de figure qui tend à détecter les jets sous une forme circulaire. De plus, il propose une comparaison avec différents algorithmes, et un exemple d'application.
+
+Comme nous avons pu le voir au travers des différents articles, cet algorithme est encore utilisé et il est même celui recommandé pour la reconstruction de jets.\\
+
+L'article "\textbf{Machine Learning in High Energy Physics Community White Paper}" \cite{albertsson_machine_2019} datant de mai 2019 et écrit par Sergei Gleyzer, Paul Seyfert, et Steven Schramm discute des applications du machine learning dans la physique des particules. Au fil des mises à jour réalisées et à venir du \acrshort{lhc} la luminosité de celui-ci ne cesse d'augmenter jusqu'à un stade où les expériences seront limitées par les performances des algorithmes et les ressources de calculs. Présentés comme étant déjà à la pointe dans plusieurs applications en physique des particules, les algorithmes de machine learning peuvent, selon les auteurs, être encore plus exploités pour tirer le plein potentiel des données récoltées. Toujours selon eux, l'approche traditionnelle de détecter des événements en temps réel avec une efficacité raisonnable, puis de les stocker pour être étudiés par la suite ne pourra pas tenir face à l'abondance de données à venir. L'utilisation d'algorithmes de machine learning serait alors le seul espoir pour réaliser de l'analyse en temps réel.
+
+L'article relève notamment qu'une collaboration entre les communautés de la science des données et de la physique des particules permettrait de faire avancer la science. Il met en avant les avantages du machine learning , mais également les contraintes auxquels ces algorithmes font face.
+
+Rendre les données facilement manipulables, et permettre à un grand nombre de communautés de prototyper rapidement et facilement des modèles sur FPGA est un enjeu clef. Permettre à des chercheurs d'horizons différents de contribuer dans leur domaine d'expertise tout en réalisant des implémentations complètes et efficaces offrirait une accélération accrue de la recherche dans ce milieu.\\
+
+Les articles "\textbf{The Machine Learning Landscape of Top Taggers}" \cite{kasieczka_machine_2019} écrit en 2019 et "\textbf{Deep learning in jet reconstruction at CMS}" \cite{stoye_deep_2018} publié en 2018 présentent l'utilisation et l'évaluation de modèles de machine learning et de deep learning respectivement pour le "top tagging" et la classification de jets, notamment en représentant les données sous forme d'images pour des réseaux neuronaux convolutifs. Le premier démontre des performances comparables entre les différentes méthodes testées, dont la valeur objectif. Le second indique qu'un gain significatif des performances a été mesuré.
+
+Bien que les deux articles ne soient pas directement liés à la détection de jets, ils proposent tous les deux de représenter les données sous forme d'image comme nous avons déjà pu le voir dans d'autres travaux. De plus, l'algorithme P-CNN est présenté comme étant similaire au modèle ResNet. Celui-ci lors de son évaluation obtient des résultats légèrement moins bons que le "gold standard", mais tout de même relativement proches. Cela nous laisse nous interroger si ResNet est capable de mieux performer, mais dans tous les cas cela nous indique qu'il s'agit tout de même d'une base solide.
+
+Par ailleurs, il peut être intéressant de noté que dans les deux cas, les jets avaient été détectés à l'aide de l'algorithme $anti-k_t$. Si cette étape arrive à être remplacée par un réseau de neurones, il serait alors possible de créer des modèles pour de l'analyse en temps réel très efficaces.\\
+
+Bien que l'outil \acrshort{hls4ml} ait son propre chapitre (\ref{HLS4ML}), nous souhaitons relever quelques points présents dans les articles à son sujet. En effet, en plus de présenter ce dernier, les articles "\textbf{Fast inference of deep neural networks in FPGAs for particle physics}" \cite{duarte_fast_2018}, et "\textbf{Fast convolutional neural networks on FPGAS with HLS4ML}" \cite{aarrestad_fast_2021} exposent pour le premier un cas d'étude lié à l'utilisation et synthèse d'un modèle de classification pour les substructures de jets, ainsi que dans les deux, des méthodes de compression et leurs performances.
+
+Le réseau de neurones pour le cas étudier obtient de bonnes performances, et avant d'être synthétisé va être décortiqué plus en profondeur par les auteurs. Ceux-ci exposent que les résultats obtenus le sont pour un modèle utilisant une représentation en virgule flottante. Il est alors discuté de comment adapté le modèle en question pour une implémentation sur \acrshort{fpga}. À l'aide de méthodes comme la compression, la quantification, mais aussi la parallélisation du modèle. Finalement, ils démontrent le gain obtenu par la compression du modèle sur les ressources qui est d'un facteur $3$. Avec une latence de $75 ns$, ils obtiennent un modèle capable de performer dans les contraintes de temps imposées par les détecteurs du \acrshort{lhc}.
+
+Le second article explique l'approche mise en place pour pouvoir gérer des réseaux neuronaux convolutifs. Il mentionne également des méthodes de compression comme le "prunning" (un processus qui élimine les connexions et neurones superflus), ou la quantification, tout en proposant une version quantifiée du modèle de base à l'aide de la librairie QKeras. Différentes implémentations sont évaluées et résumées dans un tableau mettant en avant que l'utilisation de QKeras permet d'obtenir les meilleurs résultats avec une représentation en virgule fixe plus petite. De plus, l'utilisation du "prunning" ne diminue aucunement les performances dans tous les cas exposés, et permet de diminuer les ressources utilisées.
+
+Il existe d'autres méthodes de compression avec \acrshort{hls4ml} en utilisant une représentation binaire ou ternaire comme expliqué dans l'article dédié "Compressing deep neural networks on FPGAs to binary and ternary precision with hls4ml" \cite{ngadiuba_compressing_2020}.
+
+Dans le cadre de notre travail, nous avons exploré la compression à l'aide de la quantification notamment en utilisant QKeras.\\
+
+Le dernier article que nous allons aborder se nomme "\textbf{An Overview of FPGA Based Deep Learning Accelerators: Challenges and Opportunities}" \cite{wang_overview_2019}. Écrit par Teng Wang, Chao Wang, Xuehai Zhou, et Huaping Chen en 2019, celui-ci explore l'utilisation des \acrshort{fpga} pour l'accélération de modèles de deep learning.
+
+Les auteurs mentionnent que les \acrshort{fpga} sont en train de devenir progressivement une plateforme candidate pour leur efficacité énergétique dans le calcul de réseaux de neurones. Ceux-ci peuvent atteindre un niveau de parallélisme élevé, en plus de pouvoir simplifier les modèles en fonction du matériel sans affecter les performances de ce dernier.
+
+Le document présente les méthodes d'accélération utilisées, comme la quantification ou la réduction de poids. Il y est discuté des plateformes sur lesquelles les modèles peuvent être accélérés, tels que les cartes graphiques, les \acrfull{asic}, et les \acrshort{fpga}. Les avantages et les inconvénients de chacun y sont présentés, notamment des opérations plus rapide et une consommation plus faible pour les \acrshort{asic} comparés aux \acrshort{fpga} sous un même design. Cependant, les \acrshort{fpga} présentent des cycles de desing plus court grâce à leur tableaux logiques modifiables et donc une flexibilité accrue, tout en permettant une haute parallélisation. Les cartes graphiques proposent grâce à \acrfull{cuda} une conception simplifiée et rapide, malheureusement la consommation de ses dernières est la plus élevée. Le dernier point abordé sur les accélérations concerne les algorithmes des réseaux de neurones.
+
+L'article dresse quatre catégories de recherche utilisant des \acrshort{fpga} pour l'accélération de réseaux de neurones, puis compare les performances de diverses implémentations. Il en ressort sans surprise que les performances et l'efficacité énergétique varient en fonction du modèle, du matériel, et des paramètres de configuration. Le choix de ces derniers points est donc essentiel pour obtenir la meilleure accélération possible.
+
+Malgré tous les avantages présentés, les auteurs relèvent les désavantages des \acrshort{fpga}, notamment le coût engendré par leur reconfiguration, ainsi que sa complexité de développement.
+
+Nous voyons donc que l'utilisation de \acrshort{fpga} offre non seulement un haut degré de parallélisme nécessaire pour les applications en temps réel, mais aussi une efficacité énergétique bien supérieure à l'utilisation de cartes graphiques ou même de processeur.
+
+\section{Synthèse}
+
+Au travers des différents articles, nous avons pu mieux comprendre la complexité et le besoin du système de déclenchement utilisé par l'expérience \acrshort{atlas}, ainsi que son évolution passée et les enjeux futurs liés à l'augmentation de la luminosité prévue. Nous avons pu explorer les différents algorithmes utilisés pour la reconstruction de jets, et tiré de précieuses informations de l'algorithme $anti-k_t$ notamment son utilisation et sa sensibilité aux impulsions transverses.
+
+Des travaux de recherche sur l'utilisation de réseaux de neurones pour la classification de jets mais également un travail sur la détection de jet nous ont apporté beaucoup d'informations sur le potentiel de l'utilisation de réseaux neuronaux convolutifs avec des données très complexes issues du calorimètre de l'expérience, relevant même qu'il s'agirait à terme de la seule solution possible pour de l'analyse en temps réel. De plus, nous avons abordé un article décrivant le traitement des jets pour les représenter sous forme d'image.
+
+Finalement, nous avons lu différents documents étayant les méthodes de compression existantes et leur efficacité. Nous avons donc vu que la quantification du modèle est une étape cruciale, mais qu'il en existe d'autres comme le "prunning" qui peuvent être utilisées en plus sans pour autant affecter les performances. À cela s'ajoutent les avantages indéniables des \acrshort{fpga} comme la parallélisation des opérations et leur efficacité énergétique.
+
+À l'aide des informations récoltées dans ce travail, nous comprenons les enjeux auxquels nous faisons face, mais nous voyons aussi les pistes explorées et les outils à notre disposition pour réaliser ce travail, ainsi que les méthodes clefs pour optimiser notre résultat.
+
+%----------------------------------------------------------------------------------------
+
+

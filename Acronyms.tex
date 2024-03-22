@@ -1,0 +1,70 @@
+%*******************************************************
+% Acronyms
+%*******************************************************
+% \automark[section]{chapter}
+% \renewcommand{\chaptermark}[1]{\markboth{\spacedlowsmallcaps{#1}}{\spacedlowsmallcaps{#1}}}
+% \renewcommand{\sectionmark}[1]{\markright{\thesection\enspace\spacedlowsmallcaps{#1}}}
+% \refstepcounter{dummy}
+% \pdfbookmark[0]{Table des acronymes}{table des acronymes}
+% \chapter*{Table des acronymes}
+
+% Insert your acronyms here
+% \begin{acronym}[UML]
+%   \acro{DRY}{Don't Repeat Yourself}
+%   \acro{API}{Application Programming Interface}
+%   \acro{UML}{Unified Modeling Language}
+% \end{acronym}
+
+% \newglossaryentry{formula}
+% {
+%     name=formula,
+%     description={A mathematical expression}
+% }
+
+
+\newacronym{atlas}{ATLAS}{A Toroidal LHC ApparatuS}
+\newacronym{lhc}{LHC}{Large Hadron Collider}
+\newacronym{cern}{CERN}{Conseil Européen pour la Recherche Nucléaire}
+\newacronym{fpga}{FPGA}{Field Programmable Gate Arrays}
+\newacronym{cnn}{CNN}{Convolutionnal Neural Network}
+\newacronym{yolov8}{YOLOv8}{You Only Live Once version 8}
+%-------------- State of the art ---------------------
+\newacronym{hlt}{HLT}{High-Level Trigger}
+\newacronym{cms}{CMS}{Compact Muon Solenoid}
+\newacronym{jfex}{jFEX}{jet Feature Extractor}
+\newacronym{asic}{ASIC}{Application-Specific Integrated Circuit}
+\newacronym{cuda}{CUDA}{Compute Unified Device Architecture}
+%-------------- ModelsUsed ---------------------
+\newacronym{mlp}{MLP}{Multilayer Perceptron}
+\newacronym{mse}{MSE}{Mean Squared Error}
+\newacronym{relu}{ReLU}{Rectifier Linear Unit}
+\newacronym{silu}{SiLU}{Sigmoid Linear Unit}
+\newacronym{yolo}{YOLO}{You Only Look Once}
+\newacronym{map}{mAP}{mean Average Precision}
+\newacronym{cspnet}{CSPNet}{Cross Stage Partial Network}
+\newacronym{spp}{SPP}{Spatial Pyramid Pooling}
+\newacronym{sppf}{SPPF}{Spatial Pyramid Pooling Fast}
+\newacronym{iou}{IoU}{Intersection over Union}
+\newacronym{coco}{COCO}{Common Objects in Context}
+%--------------------- Metrics ---------------------
+\newacronym{ap}{AP}{Average Precision}
+%--------------------- HLS4ML ---------------------
+\newacronym{hls4ml}{HLS4ML}{High Level Synthesis for Machine Learning}
+\newacronym{hls}{HLS}{High Level Synthesis}
+\newacronym{rtl}{RTL}{Register Transfer Level}
+%-------------- Results ---------------------
+\newacronym{flops}{FLOPS}{Floating Point Operations Per Second}
+\newacronym{dsp}{DSP}{Digital Signal Processor}
+\newacronym{ff}{FF}{Flip-Flops}
+\newacronym{lut}{LUT}{LookUp Table}
+\newacronym{bram}{BRAM}{Digital Signal Processor}
+\newacronym{fps}{FPS}{Frames Per Second}
+\newacronym{ii}{II}{Initiation Interval}
+\newacronym{cc}{CC}{clock cycles}
+
+\glsenablehyper
+
+% \printglossary[type=\acronymtype]
+\printacronyms[title=Liste des acronymes, toctitle=Liste des acronymes]
+
+\cleardoublepage
