@@ -1,6 +1,6 @@
 # Thèse de travail de master
 
-Il s'agit de ma thèse de travail de master intitulée : __Détection rapide de jets basée sur l'apprentissage automatique pour le traitement en temps réel sur FPGA au sein de l'expérience ATLAS au LHC__.
+Il s'agit de ma thèse de travail de master intitulée : __Détection rapide de jets basée sur l'apprentissage automatique pour le traitement en temps réel sur FPGA au sein de l'expérience ATLAS au LHC__, réalisée dans le cadre du master en sciences informatiques au sein de l'Université de Genève.
 
 Résumé :
 
